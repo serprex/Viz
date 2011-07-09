@@ -1,12 +1,13 @@
 #!/usr/bin/python -O
-from pyglet.gl import GLfloat,glColor3fv,glClear,GL_COLOR_BUFFER_BIT,glRectf
+from pyglet.gl import GLfloat,glColor3fv,glClear,GL_COLOR_BUFFER_BIT,glRecti
 from pyglet.graphics import draw
 from pyglet.clock import set_fps_limit as a,tick
 a(30)
 from pyglet.window import Window as W
 from os import listdir as LvL
-LvL=iter(sorted(LvL for LvL in LvL(".") if LvL.endswith(".txt"))).next
+LvL=iter(sorted(LvL for LvL in LvL(".") if LvL.endswith(".txt"))).next                                                 
 from random import random,choice
+from math import pi,cos,sin
 W=W(fullscreen=True)
 W.maximize()
 Hei=W.height
@@ -27,21 +28,21 @@ class Ply:
 				X=s.x,s.y
 				D[-(x<Wid//3) or x>(Wid<<1)//3,-(y<Hei//3) or y>(Hei<<1)//3]()
 				if not(0<=s.y<len(L) and 0<=s.x<len(L[0])) or L[s.y][s.x].H:s.x,s.y=X
-	def ltr(s):s.d=(3,0,1,2)[s.d]
-	def rtr(s):s.d=(1,2,3,0)[s.d]
+	def ltr(s):s.d=s.d+1&3
+	def rtr(s):s.d=s.d-1&3
 	def fwd(s):
-		s.x+=(+1,00,-1,00)[s.d]
-		s.y+=(00,-1,00,+1)[s.d]
+		s.x+=(1,0,-1,0)[s.d]
+		s.y+=(0,-1,0,1)[s.d]
 	def bwd(s):
-		s.x+=(-1,00,+1,00)[s.d]
-		s.y+=(00,+1,00,-1)[s.d]
-	def lwd(s):
-		s.x+=(00,+1,00,-1)[s.d]
-		s.y+=(+1,00,-1,00)[s.d]
+		s.x+=(-1,0,1,0)[s.d]
+		s.y+=(0,1,0,-1)[s.d]
+	def lwd(s,x=1):
+		s.x+=(0,x,0,-x)[s.d]
+		s.y+=(x,0,-x,0)[s.d]
 		return s
-	def rwd(s):
-		s.x+=(00,-1,00,+1)[s.d]
-		s.y+=(-1,00,+1,00)[s.d]
+	def rwd(s,x=1):
+		s.x+=(0,-x,0,x)[s.d]
+		s.y+=(-x,0,x,0)[s.d]
 		return s
 Win=type("",(),{"C":property(lambda s:choice(Col)),"H":property(lambda s:not mkL())})()
 def mkL(Lv=None):
@@ -49,10 +50,10 @@ def mkL(Lv=None):
 	globals()["kenter"]=lambda:mkL(Lv)
 	L=open(Lv).read().split("\n")
 	mL=max(map(len,L))
-	globals()["L"]=[[Nil if L in " 0" else Win if L=="!" else (Nil,Ply(x,y,">^<v".index(L)))[0] if L in ">^<v" else Col[int(L)] if L in "1234567" else GLfloat(random(),random(),random()) for x,L in enumerate(L)]+[Nil]*(mL-len(L)) for y,L in enumerate(L)]
+	globals()["L"]=[[Nil if L in " 0" else Win if L=="!" else Ply(x,y,">^<v".index(L)) and Nil if L in ">^<v" else Col[int(L)] if L in "1234567" else GLfloat(random(),random(),random()) for x,L in enumerate(L)]+[Nil]*(mL-len(L)) for y,L in enumerate(L)]
 	for mL in reversed(Col):
 		glColor3fv(mL)
-		glRectf(0,0,Wid,Hei)
+		glRecti(0,0,Wid,Hei)
 		W.flip()
 		tick()
 W.dispatch_events()
@@ -64,8 +65,7 @@ while not W.has_exit:
 	for b,a in enumerate((Ply().lwd().lwd(),Ply().lwd(),Ply(),Ply().rwd(),Ply().rwd().rwd())):
 		while 0<=a.y<len(L) and 0<=a.x<len(L[0]) and L[a.y][a.x] is Nil:a.fwd()
 		glColor3fv(L[a.y][a.x].C if 0<=a.y<len(L) and 0<=a.x<len(L[0]) else Col[0])
-		glRectf(Wid*b//5,Hei//3,Wid*(b+1)//5,(Hei<<1)//3)
+		glRecti(Wid*b//5,Hei//3,Wid*(b+1)//5,(Hei<<1)//3)
 	glColor3fv(choice(Col))
 	draw(10,1,("v2f",(Wid//3,0,Wid//3,Hei,(Wid<<1)//3,0,(Wid<<1)//3,Hei,Wid//3,Hei//3,(Wid<<1)//3,Hei//3,0,(Hei<<1)//3,Wid//3,(Hei<<1)//3,(Wid<<1)//3,(Hei<<1)//3,Wid,(Hei<<1)//3)))
 	W.flip()
-W.close()
