@@ -1,11 +1,11 @@
-#!/usr/bin/python -O
+#!/usr/bin/python
 from pyglet.gl import GLfloat,glColor3fv,glClear,GL_COLOR_BUFFER_BIT,glRecti
 from pyglet.graphics import draw
 from pyglet.clock import set_fps_limit as a,tick
 a(30)
 from pyglet.window import Window as W
-from os import listdir as LvL
-LvL=iter(sorted(LvL for LvL in LvL(".") if LvL.endswith(".txt"))).next                                                 
+from os import listdir
+LvL=iter(sorted(x for x in listdir(".") if x.endswith(".txt")))
 from random import random,choice
 from math import pi,cos,sin
 W=W(fullscreen=True)
@@ -46,7 +46,7 @@ class Ply:
 		return s
 Win=type("",(),{"C":property(lambda s:choice(Col)),"H":property(lambda s:not mkL())})()
 def mkL(Lv=None):
-	if Lv is None:Lv=LvL()
+	if Lv is None:Lv=next(LvL)
 	globals()["kenter"]=lambda:mkL(Lv)
 	L=open(Lv).read().split("\n")
 	mL=max(map(len,L))
